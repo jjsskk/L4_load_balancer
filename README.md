@@ -15,6 +15,7 @@ ubuntu 1 : client, unbuntu 2 , 3 : loadbalancer, server(이 두 프로세스는 
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 
 4. server
+
 gcc chat_serv.c -o chat_serv (빈드시 3개의 서버를 돌릴것)
 
 ./chat_serv port1
