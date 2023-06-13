@@ -2,7 +2,7 @@
 
 simple load balancer
 
-0.이 프로그램은 방화벽이나 공유기의 NAT설정등의 방해요소를 제거하기 위해 모든 process가 같은 homenetwork에서만 test되었습니다. 
+0.이 프로그램은 방화벽이나 외부 공유기의 routing, NAT설정등의 방해요소를 제거하기 위해 모든 process가 같은 homenetwork에서만 test되었습니다. 
 
 1.최소 2개 이상의 ubuntu(linux) 환경이 필요함. test는 라즈베리 파이에 ubuntu 설치후 진행되었습니다.
 
