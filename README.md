@@ -6,7 +6,7 @@ simple load balancer
 
 1.최소 2개 이상의 ubuntu(linux) 환경이 필요함. test는 라즈베리 파이에 ubuntu 설치후 진행되었습니다.
 
-ubuntu 1 : client, unbuntu 2 , 3 : loadbalancer, server( 한 환경에 다 돌려도 무방하지만 2개의 환경에서 따로돌리는것 을 추천)
+ubuntu 1 : client, unbuntu 2 , 3 : loadbalancer, server(이 두 프로세스는 한 환경에 다 돌려도 무방하지만 2개의 환경에서 따로돌리는것 을 추천)
 
 2. ubuntu에 gcc와 g++이 설치
 
