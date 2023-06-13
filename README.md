@@ -32,7 +32,7 @@ sudo ./loadbalancerLobin SourceIp Server1Ip Port1 Server2Ip Port2 Server3Ip Port
 
 6. client( check하고 싶은만큼 client 여려명 돌리면됨)
 
-gcc chat_clnt -o chat_clnt
+gcc chat_clnt. -o chat_clnt
 
 ./chat_clnt LoadbalancerIp 20000(Loadbalancer port fixed) ID
 
