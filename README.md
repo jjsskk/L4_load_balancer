@@ -24,7 +24,7 @@ gcc chat_serv.c -o chat_serv (빈드시 3개의 서버를 돌릴것)
 
 ./chat_serv port3
 
-5.load balancer
+5. load balancer
 
 g++ loadbalancerLobin.cpp -o loadbalancerLobin
 
