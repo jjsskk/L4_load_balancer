@@ -72,8 +72,13 @@ void *recv_msg(void * arg)   // read thread main
 	while (1)
 	{
 		str_len = read(sock, name_msg, NAME_SIZE+BUF_SIZE-1);
-		if (str_len == -1) 
+		printf("str_len : %d\n", str_len);
+		if (str_len == -1) {
 			return (void*)-1;
+		} else if (str_len == 0) {
+			printf("Server disconnected ...\n");
+			exit(EXIT_FAILURE);
+		}
 		name_msg[str_len] = 0;
 		fputs(name_msg, stdout);
 	}
