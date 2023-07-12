@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  server1:
+    build: ./shared
+    image: server
+    ports:
+      - '8090'
+    command:
+      - '8090'
+  server2:
+    build: ./shared
+    image: server
+    ports:
+      - '8091'
+    command:
+      - '8091'
+  server3:
+    build: ./shared
+    image: server
+    ports:
+      - '8092'
+    command:
+      - '8092'
+
+  l4lb-golang:
+    build: ./go
+    image: l4lb-golang
+    ports:
+      - '20000:20000'
+    command:
+      - server1
+      - '8090'
+      - server2
+      - '8091'
+      - server3
+      - '8092'
+    depends_on:
+      - server1
+      - server2
+      - server3
