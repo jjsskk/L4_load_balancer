@@ -10,7 +10,7 @@ import (
 
 const TCP = "tcp"
 const LB_PORT = ":20000"
-const IDLE_TIMEOUT = 15 * time.Second // The timeout for idle connections
+const IDLE_TIMEOUT = 60 * time.Second // The timeout for idle connections
 
 type MyLoadBalancer struct {
 	servers []*Server

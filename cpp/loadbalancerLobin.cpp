@@ -12,6 +12,8 @@
 #include <set>
 #include <string>
 #include <algorithm>
+#include <vector>
+#include <netdb.h>
 
 // Before run this code, execute the command below
 // $ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP ->콘솔창에서 반드시 실행시키고 시작해라
@@ -59,6 +61,27 @@ std::vector<struct server_element *> server_table;				// store server ip and por
 int round_robin_index = 0;
 
 #include "loadbalancerLobin.hpp"
+
+const char* getIPAddress(const char* hostname) {
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET; // Use AF_INET6 for IPv6
+    hints.ai_socktype = SOCK_STREAM; // Use SOCK_DGRAM for UDP
+    
+    int status = getaddrinfo(hostname, nullptr, &hints, &res);
+    if (status != 0) {
+        std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
+        return "";
+    }
+    
+    // Extract the IP address from the first result
+    char* ip = new char[INET_ADDRSTRLEN];
+    inet_ntop(res->ai_family, &((struct sockaddr_in*)res->ai_addr)->sin_addr, ip, INET_ADDRSTRLEN);
+    
+    freeaddrinfo(res);
+    
+    return ip;
+}
 
 void analyzeIPDatagram(char *buffer, int size)
 {
@@ -181,13 +204,13 @@ int main(int argc, char *argv[])
 	}
 
 	struct server_element *element1 = (struct server_element *)malloc(sizeof(struct server_element));
-	strcpy(element1->ip, argv[2]);
+	strcpy(element1->ip, getIPAddress(argv[2]));
 	element1->port = atoi(argv[3]);
 	struct server_element *element2 = (struct server_element *)malloc(sizeof(struct server_element));
-	strcpy(element2->ip, argv[4]);
+	strcpy(element2->ip, getIPAddress(argv[4]));
 	element2->port = atoi(argv[5]);
 	struct server_element *element3 = (struct server_element *)malloc(sizeof(struct server_element));
-	strcpy(element3->ip, argv[6]);
+	strcpy(element3->ip, getIPAddress(argv[6]));
 	element3->port = atoi(argv[7]);
 	server_table.push_back(element1);
 	server_table.push_back(element2);
