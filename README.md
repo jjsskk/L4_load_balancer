@@ -12,6 +12,8 @@
 
 - 로드밸런서 환경에선 반드시 다음의 명령어를 제일 먼저 실행 시킬 것(make file 참조)
 
+- 자세한 설명은 가이드 라인 파일 참조
+
 ```
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 ```
