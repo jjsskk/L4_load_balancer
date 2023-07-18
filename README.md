@@ -10,13 +10,13 @@
 
 - `gcc`와 `g++` 설치 필요
 
-- 로드밸런서 환경에선 반드시 다음의 명령어를 제일 먼저 실행 시킬 것
+- 로드밸런서 환경에선 반드시 다음의 명령어를 제일 먼저 실행 시킬 것(make file 참조)
 
 ```
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 ```
 
-### 1. Server
+### 1. Server(make file 실행해도됨)
 
 (반드시 3개의 서버를 돌릴것)
 
@@ -28,17 +28,17 @@ gcc chat_serv.c -o chat_serv
 ./chat_serv <PORT>
 ```
 
-### 2. Load Balancer
+### 2. Load Balancer(make file 실행해도됨)
 
 ```
-g++ loadbalancerLobin.cpp -o loadbalancerLobin
+g++ -std=c++11 loadbalancerLobin.cpp -o loadbalancerLobin
 ```
 
 ```
-sudo ./loadbalancerLobin <SIP> <SERVER_IP> <SERVER_PORT> <SERVER_IP2> <SERVER_PORT2> <SERVER_IP3> <SERVER_PORT3>
+sudo ./loadbalancerLobin <SourceIP> <SERVER_IP> <SERVER_PORT> <SERVER_IP2> <SERVER_PORT2> <SERVER_IP3> <SERVER_PORT3>
 ```
 
-### 3. Client
+### 3. Client(make file 실행해도됨)
 
 - 테스트 하고 싶은 클라이언트의 수만큼 프로그램 실행
 - 로드밸런서 포트 번호는 `20000`으로 고정

@@ -16,11 +16,7 @@
 #include <netdb.h>
 
 // Before run this code, execute the command below
-// $ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP ->콘솔창에서 반드시 실행시키고 시작해라
-//->커널이 자기가 안했는데 syn syn ack ack 날아 가니까(보내니까) 리셋 패킷을 보내는데 그걸 보내지 않도록 해주는 명령어
-// wireshark로 찍어보기
-// 서버에서 conneceted 찍혀야 제대로 된거임
-// pseudo header needed for tcp header checksum calculation
+// $ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 
 #define DATAGRAM_LEN 4096
 #define client_port_incoming_pkt 20000
@@ -71,6 +67,7 @@ const char* getIPAddress(const char* hostname) {
     int status = getaddrinfo(hostname, nullptr, &hints, &res);
     if (status != 0) {
         std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
+		exit(EXIT_FAILURE);
         return "";
     }
     
@@ -204,17 +201,24 @@ int main(int argc, char *argv[])
 	}
 
 	struct server_element *element1 = (struct server_element *)malloc(sizeof(struct server_element));
-	strcpy(element1->ip, getIPAddress(argv[2]));
+	const char *ip1 = getIPAddress(argv[2]);
+	strcpy(element1->ip, ip1);
 	element1->port = atoi(argv[3]);
 	struct server_element *element2 = (struct server_element *)malloc(sizeof(struct server_element));
-	strcpy(element2->ip, getIPAddress(argv[4]));
+	const char *ip2 = getIPAddress(argv[4]);
+	strcpy(element2->ip, ip2);
 	element2->port = atoi(argv[5]);
 	struct server_element *element3 = (struct server_element *)malloc(sizeof(struct server_element));
-	strcpy(element3->ip, getIPAddress(argv[6]));
+	const char *ip3 = getIPAddress(argv[6]);
+	strcpy(element3->ip, ip3);
 	element3->port = atoi(argv[7]);
 	server_table.push_back(element1);
 	server_table.push_back(element2);
 	server_table.push_back(element3);
+
+	delete []ip1;
+	delete []ip2;
+	delete []ip3;
 
 	for (auto it = server_table.begin(); it != server_table.end(); it++)
 		printf("server ip :%s  port : %d operating \n", (*it)->ip, (*it)->port);
