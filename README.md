@@ -12,18 +12,17 @@
 
 - 로드밸런서 환경에선 반드시 다음의 명령어를 제일 먼저 실행 시킬 것(make file 참조)
 
-- 자세한 설명은 가이드 라인 파일 참조
-
 ```
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 ```
+- 자세한 설명은 가이드 라인 파일 참조
 
 ### 1. Server(make file 실행해도됨)
 
 (반드시 3개의 서버를 돌릴것)
 
 ```
-gcc chat_serv.c -o chat_serv
+gcc chat_serv.c -o chat_serv -pthread
 ```
 
 ```
@@ -46,7 +45,7 @@ sudo ./loadbalancerLobin <SourceIP> <SERVER_IP> <SERVER_PORT> <SERVER_IP2> <SERV
 - 로드밸런서 포트 번호는 `20000`으로 고정
 
 ```
-gcc chat_clnt.c -o chat_clnt
+gcc chat_clnt.c -o chat_clnt -pthread
 ```
 
 ```
