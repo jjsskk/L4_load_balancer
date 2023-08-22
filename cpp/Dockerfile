@@ -4,9 +4,11 @@ WORKDIR /app
 
 COPY . .
 
+RUN chmod +x ./entrypoint.sh
+
 RUN apk update \
-    && apk add build-base
+    && apk add build-base iptables
 
 RUN g++ -o main loadbalancerLobin.cpp -std=c++11
 
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["./entrypoint.sh", "./main"]

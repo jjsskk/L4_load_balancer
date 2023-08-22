@@ -18,6 +18,7 @@ services:
   server3:
     build: ./shared
     image: server
+    ports:
       - '8092'
     command:
       - '8092'
@@ -27,18 +28,24 @@ services:
     image: l4lb-cpp
     privileged: true
     cap_add:
+      - NET_ADMIN 
       - NET_RAW
     ports:
       - '20000:20000'
     command:
-      - '0.0.0.0'
-      - 'server1'
-      - '8090'
-      - 'server2'
-      - '8091'
-      - 'server3'
-      - '8092'
-    depends_on:
+      - l4lb-cpp
       - server1
+      - '8090'
       - server2
+      - '8091'
       - server3
+      - '8092'
+
+
+
+  client:
+    build: ./shared/client
+    image: client
+    depends_on:
+      - l4lb-cpp
+    entrypoint: ["sleep", "infinity"]

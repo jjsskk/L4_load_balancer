@@ -2,10 +2,12 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 {
 	struct iphdr *iph = (struct iphdr *)buffer;
 	struct tcphdr *tcph = (struct tcphdr *)(buffer + sizeof(struct iphdr));
-	struct pseudo_header psh; // check sum 을 계산 하기위해 필요
+	struct pseudo_header psh; // required to calculate checksum
 
 	char tempip[20] = "0.0.0.0";
 	int tempport = 0;
+	int port_incoming_pkt_from_server;
+	char client_addr[20];
 	std::list<std::list<struct ip_port_element *> *>::iterator ip_port_table_index;
 
 	for (auto it = ip_port_table.begin(); it != ip_port_table.end(); it++)
@@ -23,7 +25,6 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 			strcpy(tempip, element_client->ip);
 			tempport = element_client->port;
 			// port_incoming_pkt_from_server = (*element_server)->port_incoming_pkt_from_server;
-			printf("binggo\n");
 			break;
 		}
 		// printf("  %d",*it);
@@ -71,6 +72,7 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 	memcpy(pseudogram, (char *)&psh, sizeof(struct pseudo_header));
 	memcpy(pseudogram + sizeof(struct pseudo_header), tcph, received_len - sizeof(struct iphdr));
 
+	// in loadbalancerLobin.hpp
 	tcph->check = checksum((unsigned short *)pseudogram, received_len - sizeof(struct iphdr) + sizeof(struct pseudo_header)); // tcp checksum
 	iph->check = checksum((unsigned short *)buffer, received_len);															  // ip checksum
 
@@ -95,7 +97,7 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 				free(element_server);
 				delete ((*ip_port_table_index));
 				ip_port_table.erase(ip_port_table_index);
-				printf("Current NAT table length : %d", (int)ip_port_table.size());
+				printf("Current NAT table length : %d\n", (int)ip_port_table.size());
 			}
 			if (tcph->fin == 1 && tcph->ack == 1)
 			{

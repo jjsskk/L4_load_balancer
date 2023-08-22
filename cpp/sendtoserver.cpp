@@ -2,21 +2,23 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 {
 	struct iphdr *iph = (struct iphdr *)buffer;
 	struct tcphdr *tcph = (struct tcphdr *)(buffer + sizeof(struct iphdr));
-	struct pseudo_header psh; // check sum 을 계산 하기위해 필요
-
+	struct pseudo_header psh; // required to calculate checksum
+	char client_addr[20];
 	// analyzeIPDatagram(buffer, received_len);
 	// analyzeTCPSegment(buffer, received_len);
 	// set destination  = server ip
 
 	char tempip[20] = "0.0.0.0";
 	int tempport = 0;
+	int port_incoming_pkt_from_server;
+	int client_port_from_client;
 
 	std::list<std::list<struct ip_port_element *> *>::iterator ip_port_table_index;
 	strcpy(client_addr, inet_ntoa(*(struct in_addr *)&iph->saddr));
 	printf("client ip addr =  %s\n", client_addr);
 	if (tcph->syn == 1 && tcph->ack == 0)
 	{
-		round_robin(src, dst, &tempport, (int)ntohs(tcph->source), inet_ntoa(*(struct in_addr *)&iph->saddr));
+		roundRobin(src, dst, &tempport, (int)ntohs(tcph->source), inet_ntoa(*(struct in_addr *)&iph->saddr)); // in loadbalancerLobin.hpp
 	}
 	else
 	{
@@ -32,7 +34,6 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 				strcpy(tempip, element_server->ip);
 				tempport = element_server->port;
 				port_incoming_pkt_from_server = element_server->port_incoming_pkt_from_server;
-				printf("binggo\n");
 				break;
 			}
 			// printf("  %d",*it);
@@ -86,6 +87,7 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 	memcpy(pseudogram, (char *)&psh, sizeof(struct pseudo_header));
 	memcpy(pseudogram + sizeof(struct pseudo_header), tcph, received_len - sizeof(struct iphdr));
 
+	// in loadbalancerLobin.hpp
 	tcph->check = checksum((unsigned short *)pseudogram, received_len - sizeof(struct iphdr) + sizeof(struct pseudo_header)); // tcp checksum
 
 	iph->check = checksum((unsigned short *)buffer, received_len); // ip checksum

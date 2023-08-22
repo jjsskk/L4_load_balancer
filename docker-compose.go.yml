@@ -39,3 +39,10 @@ services:
       - server1
       - server2
       - server3
+
+  client:
+    build: ./shared/client
+    image: client
+    depends_on:
+      - l4lb-golang
+    entrypoint: ["sleep", "infinity"]
