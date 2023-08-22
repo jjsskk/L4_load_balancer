@@ -2,24 +2,30 @@
 
 ## RAW SOCKET 기반 로드밸런서 (CPP)
 
-- 이 프로그램은 방화벽이나 외부 공유기의 routing, NAT설정 등의 방해요소를 제거하기 위해 모든 프로세스가 같은 home network 내에서 테스트되었습니다.
+- 이 프로젝트는 방화벽이나 외부 공유기의 routing, NAT설정 등의 방해요소를 제거하기 위해 home network 환경에서 테스트되었습니다.
 
-- 최소 2개 이상의 ubuntu(linux) 환경이 필요합니다. 데모에서는 라즈베리파이에 ubuntu 설치후 진행했습니다.
+- ./shared/chat_clnt.c(client), ./shared/chat.serv.c(server), ./cpp/loadbalancerLobin.cpp 파일 모두 POSIX Socket 기반으로 작성 되었습니다.
 
-- ubuntu 1 : client, unbuntu 2 , 3 : load balancer, server(이 두 프로세스는 한 환경에 다 돌려도 무방하지만 2개의 환경에서 따로 돌리는것을 추천)
+-  ubuntu(linux) 환경이 필요합니다. ~~데모에서는 라즈베리파이에 ubuntu 설치후 진행했습니다.~~
+
+- ubuntu 1 : client, unbuntu 2 : load balancer, unbuntu 3 : server( 모든 작업을 1개의 로컬 환경(ubuntu)에서 테스트해도 무방합니다)
 
 - `gcc`와 `g++` 설치 필요
 
-- 로드밸런서 환경에선 반드시 다음의 명령어를 제일 먼저 실행 시킬 것(make file 참조)
+- 로드밸런서 환경에선 반드시 다음의 명령어가 정상적으로 실행이 되는지 확인해야 합니다. (makefile이나 dockerfile을 통해 자동으로 실행이 되지만 혹시나 실행이 되지 않는 환경이라면 RAW SOCKET 기반 로드밸런서가 제대로 동작하지 않습니다. )
 
 ```
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 ```
 - 자세한 설명은 가이드 라인 파일 참조
 
-### 1. Server(make file 실행해도됨)
+### linux(ubuntu) 환경에서 테스트 
 
-(반드시 3개의 서버를 돌릴것)
+- compile은 makefile 사용을 권장합니다
+
+### 1. Server
+
+(여러 터미널을 이용해 2개이상의 서버를 테스트 할 수 있습니다)
 
 ```
 gcc chat_serv.c -o chat_serv -pthread
@@ -29,7 +35,7 @@ gcc chat_serv.c -o chat_serv -pthread
 ./chat_serv <PORT>
 ```
 
-### 2. Load Balancer(make file 실행해도됨)
+### 2. Load Balancer
 
 ```
 g++ -std=c++11 loadbalancerLobin.cpp -o loadbalancerLobin
@@ -39,10 +45,10 @@ g++ -std=c++11 loadbalancerLobin.cpp -o loadbalancerLobin
 sudo ./loadbalancerLobin <SourceIP> <SERVER_IP> <SERVER_PORT> <SERVER_IP2> <SERVER_PORT2> <SERVER_IP3> <SERVER_PORT3>
 ```
 
-### 3. Client(make file 실행해도됨)
+### 3. Client
 
-- 테스트 하고 싶은 클라이언트의 수만큼 프로그램 실행
-- 로드밸런서 포트 번호는 `20000`으로 고정
+- 여러 터미널을 이용해 테스트 하고 싶은 클라이언트의 수만큼 프로그램 실행 할 수 있습니다.
+- 로드밸런서 포트 번호는 `20000`으로 고정 (1개의 로컬환경에서 모든 프로세스를 테스트 할 경우 서버 포트는 20000을 사용하면 안됨)
 
 ```
 gcc chat_clnt.c -o chat_clnt -pthread
@@ -50,6 +56,65 @@ gcc chat_clnt.c -o chat_clnt -pthread
 
 ```
 ./chat_clnt LoadbalancerIp 20000 <NICKNAME>
+```
+
+### Docker compose 이용한 테스트 
+
+- window 환경에서는 이 프로젝트를 테스트 할 수 없습니다.
+
+- 어떠한 환경(OS)에서도 이 프로젝트를 테스트 할 수 있도록 docker compose를 이용해 client, server, loadbalancer를 container 형태로 실행시켜 이 모든 container들을 한번에 관리 할 수 있는 환경을 구축했습니다.
+
+- docker, docker compose 설치가 필요합니다.
+
+
+### 1. Server, Load Balancer
+
+- CMD(terminal)를 열고 yml 파일이 있는 위치에서 다음의 명령어를 실행 시키면 로드벨런서와 3개의 서버가 container 형태로 자동으로 실행이 됩니다.
+
+```
+docker-compose -f docker-compose.cpp.yml up
+```
+- `docker ps` 명령어를 이용해 컨테이너가 잘 생성되었는지 확인합니다.
+
+- 다음의 명령어를 실행시키면 로드벨런서와 3개의 서버 container들이 자동으로 종료됩니다.
+
+```
+docker-compose -f docker-compose.cpp.yml down
+```
+
+### 3. Client
+
+- 로드밸런서 포트 번호는 `20000`으로 고정
+
+####  a. window 환경
+
+- docker compose를 통해 생성된 client container에서 테스트 할 수 있습니다.
+
+- CMD창을 열어 다음의 명령어를 통해 client continer에 접속 합니다.
+
+```
+docker exec -it finalproject_client_1 /bin/bash
+```
+
+- 다음 명령어를 통해서 로드벨런서 컨테이너에 접속합니다. 
+
+- 이 명령어는 nickname을 제외한 다른 argument는 그대로 사용해야 합니다. ( l4lb-cpp -> 로드벨런서 서비스 이름으로 도커 컴포즈 내부 DNS에 의해 자동으로 로드 밸런서 컨테이너 IP주소로 변환됩니다. )
+
+```
+./client l4lb-cpp 20000 <nickname>
+```
+- 접속하고 싶은 client 수 만큰 위의 과정을 반복합니다.
+
+####  b. macos, linux 환경
+
+-외부 혹인 로컬 macos, linux 환경에서 client 프로그램을 실행시켜 도커 컴포즈가 실행중인 환경에 접속 가능합니다. (yml파일을 통해 로드밸런서 도커 포트(20000)와 로컬 호스트 포트(200000) 동기화함)
+
+```
+gcc chat_clnt.c -o client -pthread
+```
+
+```
+./client LoadbalancerIp 20000 <NICKNAME>
 ```
 
 ---
@@ -66,7 +131,7 @@ gcc chat_clnt.c -o chat_clnt -pthread
 
 도커 컴포즈를 이용해 로컬에 가상의 서버 3대와 로드밸런서 1대를 생성하고, 호스트에서 클라이언트 프로그램을 실행함으로써 테스트할 수 있습니다.
 
-1.먼저 도커 컴포즈를 이용해 서버와 로드밸런서를 구성하는 컨테이너를 생성합니다.
+1. 먼저 도커 컴포즈를 이용해 서버와 로드밸런서를 구성하는 컨테이너를 생성합니다.
 
 ```
 docker-compose -f docker-compose.go.yml up
@@ -76,6 +141,10 @@ docker-compose -f docker-compose.go.yml up
 
 3. 클라이언트 프로그램을 실행합니다. 테스트 하고 싶은 클라이언트의 수만큼 터미널을 생성해 실행합니다. 로드밸런서 포트 번호는 `20000`으로 고정되어 있습니다.
 
+#### macos, linux 환경
+
+-외부 혹은 로컬 macos, linux 환경에서 client 프로그램을 실행시켜 도커 컴포즈가 실행중인 환경에 접속 가능합니다. (yml파일을 통해 로드밸런서 도커 포트(20000)와 로컬 호스트 포트(200000) 동기화함)
+
 ```
 gcc chat_clnt.c -o client
 ```
@@ -83,6 +152,27 @@ gcc chat_clnt.c -o client
 ```
 ./client 127.0.0.1 20000 <NICKNAME>
 ```
+- 도커 컴포즈가 로컬호스트에서 돌아가고있다면 127.0.0.1 사용해도 되지만 외부환경이라면 그에 맞는 로드밸런서 ip를 입력해야 합니다
+
+#### window 환경
+
+- docker compose를 통해 생성된 client container에서 테스트 할 수 있습니다.
+
+- CMD창을 열어 다음의 명령어를 통해 client continer에 접속 합니다.
+
+```
+docker exec -it finalproject_client_1 /bin/bash
+```
+
+- 다음 명령어를 통해서 로드벨런서 컨테이너에 접속합니다. 
+
+- 이 명령어는 nickname을 제외한 다른 argument는 그대로 사용해야 합니다. ( l4lb-golang -> 로드벨런서 서비스 이름으로 도커 컴포즈 내부 DNS에 의해 자동으로 로드 밸런서 컨테이너 IP주소로 변환됩니다. )
+
+```
+./client l4lb-golang 20000 <nickname>
+```
+- 접속하고 싶은 client 수 만큰 위의 과정을 반복합니다.
+
 
 ## 결과 예시
 
@@ -130,3 +220,9 @@ l4_load_balancer-l4lb-golang-1  | Connection from 172.18.0.1:49384
 l4_load_balancer-l4lb-golang-1  | Timeout: read tcp 172.18.0.5:20000->172.18.0.1:49384: i/o timeout
 l4_load_balancer-l4lb-golang-1  | Disconnect 172.18.0.1:49384 from server 172.18.0.4:8090
 ```
+
+---
+
+## Reference
+
+- shared 폴더에 있는 client와 server 파일은 [윤성우의 열혈 TCP/IP 소켓 프로그래밍](https://www.yes24.com/Product/Goods/3630373) 책에 있는 예제를 참조했습니다.
