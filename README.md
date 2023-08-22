@@ -17,9 +17,14 @@
 ```
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 ```
+
+- loadbalancer가 주기적으로 서버의 상태를 체크합니다.(healthcheck) 
+
+- 부하 분산 할고리즘은 라운드 로빈 방식을 사용했습니다.
+
 - 자세한 설명은 가이드 라인 파일 참조
 
-### linux(ubuntu) 환경에서 테스트 
+### Linux(Ubuntu) 환경에서 테스트 
 
 - compile은 makefile 사용을 권장합니다
 
@@ -82,7 +87,7 @@ docker-compose -f docker-compose.cpp.yml up
 docker-compose -f docker-compose.cpp.yml down
 ```
 
-### 3. Client
+### 2. Client
 
 - 로드밸런서 포트 번호는 `20000`으로 고정
 
@@ -107,7 +112,7 @@ docker exec -it finalproject_client_1 /bin/bash
 
 ####  b. macos, linux 환경
 
--외부 혹인 로컬 macos, linux 환경에서 client 프로그램을 실행시켜 도커 컴포즈가 실행중인 환경에 접속 가능합니다. (yml파일을 통해 로드밸런서 도커 포트(20000)와 로컬 호스트 포트(200000) 동기화함)
+-외부 혹은 로컬 macos, linux 환경에서 client 프로그램을 실행시켜 도커 컴포즈가 실행중인 환경에 접속 가능합니다. (yml파일을 통해 로드밸런서 도커 포트(20000)와 로컬 호스트 포트(20000) 동기화함)
 
 ```
 gcc chat_clnt.c -o client -pthread
@@ -143,7 +148,7 @@ docker-compose -f docker-compose.go.yml up
 
 #### macos, linux 환경
 
--외부 혹은 로컬 macos, linux 환경에서 client 프로그램을 실행시켜 도커 컴포즈가 실행중인 환경에 접속 가능합니다. (yml파일을 통해 로드밸런서 도커 포트(20000)와 로컬 호스트 포트(200000) 동기화함)
+-외부 혹은 로컬 macos, linux 환경에서 client 프로그램을 실행시켜 도커 컴포즈가 실행중인 환경에 접속 가능합니다. (yml파일을 통해 로드밸런서 도커 포트(20000)와 로컬 호스트 포트(20000) 동기화함)
 
 ```
 gcc chat_clnt.c -o client
@@ -171,7 +176,7 @@ docker exec -it finalproject_client_1 /bin/bash
 ```
 ./client l4lb-golang 20000 <nickname>
 ```
-- 접속하고 싶은 client 수 만큰 위의 과정을 반복합니다.
+- 접속하고 싶은 client 수 만큼 위의 과정을 반복합니다.
 
 
 ## 결과 예시
