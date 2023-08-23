@@ -4,6 +4,10 @@
 
 - 이 프로젝트는 방화벽이나 외부 공유기의 routing, NAT설정 등의 방해요소를 제거하기 위해 home network 환경에서 테스트되었습니다.
 
+- loadbalancer가 주기적으로 서버의 상태를 체크합니다.(healthcheck) 
+
+- 부하 분산 알고리즘은 라운드 로빈 방식을 사용했으며 헬스체크를 통해 죽은 서버를 확인한다면 그쪽으로는 부하를 분산하지 않고 살아있는 서버로만 부하가 분산되도록 설계했습니다.
+
 - ./shared/chat_clnt.c(client), ./shared/chat.serv.c(server), ./cpp/loadbalancerLobin.cpp 파일 모두 POSIX Socket 기반으로 작성 되었습니다.
 
 -  ubuntu(linux) 환경이 필요합니다. ~~데모에서는 라즈베리파이에 ubuntu 설치후 진행했습니다.~~
@@ -17,10 +21,6 @@
 ```
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 ```
-
-- loadbalancer가 주기적으로 서버의 상태를 체크합니다.(healthcheck) 
-
-- 부하 분산 할고리즘은 라운드 로빈 방식을 사용했습니다.
 
 - 자세한 설명은 가이드 라인 파일 참조
 
@@ -47,7 +47,7 @@ g++ -std=c++11 loadbalancerLobin.cpp -o loadbalancerLobin
 ```
 
 ```
-sudo ./loadbalancerLobin <SourceIP> <SERVER_IP> <SERVER_PORT> <SERVER_IP2> <SERVER_PORT2> <SERVER_IP3> <SERVER_PORT3>
+sudo ./loadbalancerLobin <SourceIP> <SERVER_IP> <SERVER_PORT> <SERVER_IP2> <SERVER_PORT2>...
 ```
 
 ### 3. Client
@@ -98,17 +98,29 @@ docker-compose -f docker-compose.cpp.yml down
 - CMD창을 열어 다음의 명령어를 통해 client continer에 접속 합니다.
 
 ```
-docker exec -it finalproject_client_1 /bin/bash
+docker exec -it RootFolderNAME_client_1 /bin/bash
+```
+
+- 일반적으로 RootFolderNAME은 yml file이 위치한 폴더 이름이나 혹시나 실행이 안된다면 `docker ps`를 통해 client container name을 확인하고 하고 실행하시면 됩니다.
+
+```
+C:\Users\kjs>docker ps
+CONTAINER ID   IMAGE      COMMAND                  CREATED          STATUS          PORTS                      NAMES
+741941327c0a   client     "sleep infinity"         11 seconds ago   Up 9 seconds                               finalproject_client_1
+eab5d222ef2b   l4lb-cpp   "./entrypoint.sh ./m…"   14 seconds ago   Up 11 seconds   0.0.0.0:20000->20000/tcp   finalproject_l4lb-cpp_1
+cb1cc338fa4e   server     "./serv 8092"            14 seconds ago   Up 11 seconds   0.0.0.0:1053->8092/tcp     finalproject_server3_1
+21e0e23dc61a   server     "./serv 8091"            14 seconds ago   Up 11 seconds   0.0.0.0:1052->8091/tcp     finalproject_server2_1
+a4f953537736   server     "./serv 8090"            14 seconds ago   Up 10 seconds   0.0.0.0:1054->8090/tcp     finalproject_server1_1
 ```
 
 - 다음 명령어를 통해서 로드벨런서 컨테이너에 접속합니다. 
 
-- 이 명령어는 nickname을 제외한 다른 argument는 그대로 사용해야 합니다. ( l4lb-cpp -> 로드벨런서 서비스 이름으로 도커 컴포즈 내부 DNS에 의해 자동으로 로드 밸런서 컨테이너 IP주소로 변환됩니다. )
+- 이 명령어는 nickname을 제외한 다른 argument는 그대로 사용해야 합니다. ( l4lb-cpp -> yml 파일에서 정의한 로드벨런서 서비스 이름으로 도커 컴포즈 내부 DNS에 의해 자동으로 로드 밸런서 컨테이너 IP주소로 변환됩니다. )
 
 ```
 ./client l4lb-cpp 20000 <nickname>
 ```
-- 접속하고 싶은 client 수 만큰 위의 과정을 반복합니다.
+- 접속하고 싶은 client 수 만큼 위의 과정을 반복합니다.
 
 ####  b. macos, linux 환경
 
@@ -166,12 +178,24 @@ gcc chat_clnt.c -o client
 - CMD창을 열어 다음의 명령어를 통해 client continer에 접속 합니다.
 
 ```
-docker exec -it finalproject_client_1 /bin/bash
+docker exec -it RootFolderNAME_client_1 /bin/bash
+```
+
+- 일반적으로 RootFolderNAME은 yml file이 위치한 폴더 이름이나 혹시나 실행이 안된다면 `docker ps`를 통해 client container name을 확인하고 하고 실행하시면 됩니다.
+
+```
+C:\Users>docker ps
+CONTAINER ID   IMAGE         COMMAND                  CREATED         STATUS         PORTS                      NAMES
+c776d110907d   client        "sleep infinity"         9 minutes ago   Up 9 minutes                              finalproject_client_1
+9f82afeedefe   l4lb-golang   "./main server1 8090…"   9 minutes ago   Up 9 minutes   0.0.0.0:20000->20000/tcp   finalproject_l4lb-golang_1
+ad416195046d   server        "./serv 8091"            9 minutes ago   Up 9 minutes   0.0.0.0:13051->8091/tcp    finalproject_server2_1
+e24ce673f075   server        "./serv 8090"            9 minutes ago   Up 9 minutes   0.0.0.0:13045->8090/tcp    finalproject_server1_1
+a3a609333e0c   server        "./serv 8092"            9 minutes ago   Up 9 minutes   0.0.0.0:13046->8092/tcp    finalproject_server3_1
 ```
 
 - 다음 명령어를 통해서 로드벨런서 컨테이너에 접속합니다. 
 
-- 이 명령어는 nickname을 제외한 다른 argument는 그대로 사용해야 합니다. ( l4lb-golang -> 로드벨런서 서비스 이름으로 도커 컴포즈 내부 DNS에 의해 자동으로 로드 밸런서 컨테이너 IP주소로 변환됩니다. )
+- 이 명령어는 nickname을 제외한 다른 argument는 그대로 사용해야 합니다. ( l4lb-golang -> yml 파일에서 정의한 로드벨런서 서비스 이름으로 도커 컴포즈 내부 DNS에 의해 자동으로 로드 밸런서 컨테이너 IP주소로 변환됩니다. )
 
 ```
 ./client l4lb-golang 20000 <nickname>
