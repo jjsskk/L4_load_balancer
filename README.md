@@ -22,7 +22,7 @@
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 ```
 
-- 자세한 설명은 가이드 라인 파일 참조
+- 스크린샷을 이용한 자세한 시연 과정 설명은 가이드 라인 파일 참조
 
 ### Linux(Ubuntu) 환경에서 테스트 
 
@@ -67,7 +67,7 @@ gcc chat_clnt.c -o chat_clnt -pthread
 
 - window 환경에서는 이 프로젝트를 테스트 할 수 없습니다.
 
-- 어떠한 환경(OS)에서도 이 프로젝트를 테스트 할 수 있도록 docker compose를 이용해 client, server, loadbalancer를 container 형태로 실행시켜 이 모든 container들을 한번에 관리 할 수 있는 환경을 구축했습니다.
+- 어떠한 환경(OS)에서도 이 프로젝트를 테스트 할 수 있도록 docker compose를 이용해 client, server, loadbalancer를 container 형태로 실행시켜 이 모든 container들을 한번에 관리 할 수 있는 환경을 구축했습니다 (Docker Compose Orchestration).
 
 - docker, docker compose 설치가 필요합니다.
 
