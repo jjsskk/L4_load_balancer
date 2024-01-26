@@ -25,7 +25,7 @@ CMake suite maintained and supported by Kitware (kitware.com/cmake).
 
 
 - 도커를 사용하지 않는 터미널 기반 로드밸런서 환경에선 반드시 다음의 명령어를 실행시켜야 하며 정상적으로 실행이 되는지 확인해야 합니다.
-- 도커를 사용할 경우 dockerfile을 통해 container에서 자동으로 실행이 됩니다.
+- 도커를 사용할 경우 dockerfile을 통해 container에서 명령어가 자동으로 실행이 됩니다.
 - 명령어 실행이 되지 않는다면  RAW SOCKET 기반 로드밸런서가 제대로 동작하지 않습니다. 
 
 ```
