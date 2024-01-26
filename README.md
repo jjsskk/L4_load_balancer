@@ -126,7 +126,7 @@ docker-compose -f docker-compose.cpp.yml down
     a4f953537736   server     "./serv 8090"            14 seconds ago   Up 10 seconds   0.0.0.0:1054->8090/tcp     finalproject_server1_1
     ```
 
-    - 다음 명령어를 통해서 로드벨런서 컨테이너에 접속합니다. 
+    - 다음 명령어를 통해서 client는 로드벨런서 컨테이너에 연결을 시도 합니다. 
 
     - 이 명령어는 nickname을 제외한 다른 argument는 그대로 사용해야 합니다.
     -  l4lb-cpp -> yml 파일에서 정의한 로드벨런서 서비스 이름으로 도커 컴포즈 내부 DNS에 의해 자동으로 로드 밸런서 컨테이너 IP주소로 변환됩니다.
