@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.18
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ RUN chmod +x ./entrypoint.sh
 
 # CMake 빌드
 RUN apk update \
-    && apk add build-base cmake iptables git\
+    && apk add build-base iptables cmake git\
     && mkdir build \
     && cd build \
     && cmake .. \
