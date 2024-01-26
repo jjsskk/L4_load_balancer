@@ -1,6 +1,13 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/socket.h>
+#include <netinet/ip.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <iostream>
+#include <string.h>
+#include "globalVariable.h"
 
 int connectWithTimeout(int sock, struct sockaddr_in *serv_addr, int sec)
 {

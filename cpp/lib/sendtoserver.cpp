@@ -1,3 +1,5 @@
+#include <send.h>
+
 void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
 	struct iphdr *iph = (struct iphdr *)buffer;
@@ -52,23 +54,22 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 		dst->sin_port = htons(tempport);
 	}
 
-	// if (inet_pton(AF_INET, server_ip, &(dst->sin_addr)) != 1)//set server ip addr
-	// {
-	// 	perror("Server destination IP and Port configuration failed");
-	// 	exit(EXIT_FAILURE);
-	// }
 	printf("   |-Source IP address: %s\n", inet_ntoa(*(struct in_addr *)&iph->saddr));
 	printf("   |-Destination IP address: %s\n", inet_ntoa(*(struct in_addr *)&iph->daddr));
 	iph->saddr = src->sin_addr.s_addr;
 	iph->daddr = dst->sin_addr.s_addr;
+	printf("   |-Network Address Translation---------\n");
+	printf("   |-Source IP address: %s\n", inet_ntoa(*(struct in_addr *)&iph->saddr));
+	printf("   |-Destination IP address: %s\n", inet_ntoa(*(struct in_addr *)&iph->daddr));
+
 	iph->check = 0;
 
 	client_port_from_client = tcph->source;
 	printf("client port : %d\n", ntohs(client_port_from_client));
-	// src->sin_port = htons(port_incoming_pkt_from_server);
-	// dst->sin_port = htons(server_port);
+
 	printf("   |-Source Port: %u\n", ntohs(tcph->source));
 	printf("   |-Destination Port: %u\n", ntohs(tcph->dest));
+	printf("   |-Network Address Translation---------\n");
 	tcph->source = src->sin_port;
 	tcph->dest = dst->sin_port; // real port num for server to operate application
 	printf("   |-Source Port: %u\n", ntohs(tcph->source));
@@ -98,6 +99,7 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 	// sleep(1);
 	int sent;
 	if (0 != tempport)
+	{
 		if ((sent = sendto(sock, buffer, received_len, 0, (struct sockaddr *)dst, sizeof(struct sockaddr))) == -1)
 		{
 			perror("sendto()");
@@ -129,5 +131,6 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 				}
 			}
 		}
+	}
 	free(pseudogram);
 }

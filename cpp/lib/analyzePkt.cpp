@@ -1,3 +1,9 @@
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+
 void analyzeIPDatagram(char *buffer, int size)
 {
 	struct iphdr *ip = (struct iphdr *)(buffer); // ip header를 바로 가리키게 됨

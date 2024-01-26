@@ -1,3 +1,5 @@
+#include <send.h>
+
 void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
 	struct iphdr *iph = (struct iphdr *)buffer;
@@ -6,8 +8,7 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 
 	char tempip[20] = "0.0.0.0";
 	int tempport = 0;
-	int port_incoming_pkt_from_server;
-	char client_addr[20];
+
 	std::list<std::list<struct ip_port_element *> *>::iterator ip_port_table_index;
 
 	for (auto it = ip_port_table.begin(); it != ip_port_table.end(); it++)
@@ -42,22 +43,13 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 	src->sin_port = htons(client_port_incoming_pkt);
 	dst->sin_port = htons(tempport);
 
-	// //set destination  = client ip
-	// if (inet_pton(AF_INET, client_addr, &(dst->sin_addr)) != 1) //set client ip addr
-	// {
-	// 	perror("Server destination IP and Port configuration failed");
-	// 	exit(EXIT_FAILURE);
-	// }
 
 	iph->saddr = src->sin_addr.s_addr;
 	iph->daddr = dst->sin_addr.s_addr;
 	iph->check = 0;
 
-	// src->sin_port = htons(client_port_incoming_pkt);
-	// dst->sin_port = client_port_from_client;
 	tcph->source = src->sin_port;
 	tcph->dest = dst->sin_port;
-	; // real port num for server to operate application
 	tcph->check = 0;
 
 	// TCP pseudo header for checksum calculation
@@ -78,6 +70,7 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 
 	int sent;
 	if (tempport != 0)
+	{
 		if ((sent = sendto(sock, buffer, received_len, 0, (struct sockaddr *)dst, sizeof(struct sockaddr))) == -1)
 		{
 			perror("sendto()");
@@ -104,6 +97,7 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 				(element_client->fin_ack)++;
 			}
 		}
+	}
 
 	free(pseudogram);
 }

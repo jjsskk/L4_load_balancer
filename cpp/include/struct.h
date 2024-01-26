@@ -1,3 +1,8 @@
+#ifndef STRUCT_H
+#define STRUCT_H
+#include <sys/socket.h>
+#include <sys/types.h>
+
 struct pseudo_header
 {
 	u_int32_t source_address;
@@ -20,3 +25,5 @@ struct server_element
 	char ip[25];
 	int port;
 };
+
+#endif

@@ -1,3 +1,13 @@
+#include <algorithm>
+#include <string.h>
+#include <sys/socket.h>
+#include <list>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include "loadbalancerLobin.h"
+#include "globalVariable.h"
+#include "struct.h"
+
 template <typename T>
 bool contains(std::set<T> &listOfElements, const T &element)
 {

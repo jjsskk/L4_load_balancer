@@ -1,41 +1,29 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <time.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
-#include <list>
-#include <set>
 #include <string>
-#include <algorithm>
-#include <vector>
-#include <netdb.h>
 #include <thread>
-#include "struct.hpp"
+#include <unistd.h>
 
 // Before run this code, execute the command below
 // $ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 
-#define DATAGRAM_LEN 4096
-#define client_port_incoming_pkt 20000
+
 // #define port_incoming_pkt_from_server 20001
 
-std::set<int> portlist_for_server;								// assign one port to one server. never use reused port for some servers
-std::list<std::list<struct ip_port_element *> *> ip_port_table; // for Network Address Translation(NAT)
-std::vector<struct server_element *> server_table;				// store server ip and port
-std::vector<bool> server_status_table;							// store server status(true = alive or false = dead)
-unsigned short round_robin_index = 0;
-unsigned short numberOfServer = 0;
+// std::set<int> portlist_for_server;								// assign one port to one server. never use reused port for some servers
+// std::list<std::list<struct ip_port_element *> *> ip_port_table; // for Network Address Translation(NAT)
+// std::vector<struct server_element *> server_table;				// store server ip and port
+// std::vector<bool> server_status_table;							// store server status(true = alive or false = dead)
+// unsigned short round_robin_index = 0;
+// unsigned short numberOfServer = 0;
 
-#include "loadbalancerLobin.hpp"
-#include "analyzePkt.cpp"
-#include "healthCheck.cpp"
-#include "sendtoserver.cpp"
-#include "sendtoclient.cpp"
+#include "loadbalancerLobin.h"
+#include "analyzePkt.h"
+#include "healthCheck.h"
+#include "send.h"
 
 void receive_from(int sock, char *buffer, size_t buffer_length, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
