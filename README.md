@@ -36,7 +36,7 @@ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 
 ### Linux(Ubuntu) 환경에서 테스트 
 
-### 1. Server(shard 폴더)
+### 1. Server(shared 폴더)
 
 - shared 폴더로 이동 후 여러 터미널을 이용해 2개이상의 서버를 테스트 할 수 있습니다.
 - 컴파일 -> make
