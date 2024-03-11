@@ -55,7 +55,10 @@ gcc chat_serv.c -o chat_serv -pthread
 ```
 mkdir build && cd build 
 cmake .. 
-make
+nproc # 자신 시스템의 코어 수 확인
+
+# build (modify the core number '12' after option -j accordingly)
+make -j4 # 자신 시스템 코어 수에 맞게 -j 다음의 숫자를 변경
 cd bin
 ```
 ```
