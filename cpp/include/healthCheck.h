@@ -5,8 +5,8 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 
-int connectWithTimeout(int sock, struct sockaddr_in *serv_addr, int sec);
+int ConnectWithTimeout(int sock, struct sockaddr_in *serv_addr, int sec);
 int GetCurrentSec();
-void healthCheckServer(char *ip, int port, int server_status_table_index);
+void HealthCheckServer(char *ip, int port, int server_status_table_index);
 
 #endif

@@ -1,6 +1,6 @@
 #include <send.h>
 
-void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
+void sendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
 	struct iphdr *iph = (struct iphdr *)buffer;
 	struct tcphdr *tcph = (struct tcphdr *)(buffer + sizeof(struct iphdr));
@@ -65,8 +65,8 @@ void sendtoclient(int sock, char *buffer, int received_len, struct sockaddr_in *
 	memcpy(pseudogram + sizeof(struct pseudo_header), tcph, received_len - sizeof(struct iphdr));
 
 	// in loadbalancerLobin.hpp
-	tcph->check = checksum((unsigned short *)pseudogram, received_len - sizeof(struct iphdr) + sizeof(struct pseudo_header)); // tcp checksum
-	iph->check = checksum((unsigned short *)buffer, received_len);															  // ip checksum
+	tcph->check = CheckSum((unsigned short *)pseudogram, received_len - sizeof(struct iphdr) + sizeof(struct pseudo_header)); // tcp checksum
+	iph->check = CheckSum((unsigned short *)buffer, received_len);															  // ip checksum
 
 	int sent;
 	if (tempport != 0)

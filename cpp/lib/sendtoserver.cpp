@@ -1,6 +1,6 @@
 #include <send.h>
 
-void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
+void SendToServer(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
 	struct iphdr *iph = (struct iphdr *)buffer;
 	struct tcphdr *tcph = (struct tcphdr *)(buffer + sizeof(struct iphdr));
@@ -20,7 +20,7 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 	printf("client ip addr =  %s\n", client_addr);
 	if (tcph->syn == 1 && tcph->ack == 0)
 	{
-		roundRobin(src, dst, &tempport, (int)ntohs(tcph->source), inet_ntoa(*(struct in_addr *)&iph->saddr)); // in loadbalancerLobin.hpp
+		RoundRobin(src, dst, &tempport, (int)ntohs(tcph->source), inet_ntoa(*(struct in_addr *)&iph->saddr)); // in loadbalancerLobin.hpp
 	}
 	else
 	{
@@ -89,9 +89,9 @@ void sendtoserver(int sock, char *buffer, int received_len, struct sockaddr_in *
 	memcpy(pseudogram + sizeof(struct pseudo_header), tcph, received_len - sizeof(struct iphdr));
 
 	// in loadbalancerLobin.hpp
-	tcph->check = checksum((unsigned short *)pseudogram, received_len - sizeof(struct iphdr) + sizeof(struct pseudo_header)); // tcp checksum
+	tcph->check = CheckSum((unsigned short *)pseudogram, received_len - sizeof(struct iphdr) + sizeof(struct pseudo_header)); // tcp checksum
 
-	iph->check = checksum((unsigned short *)buffer, received_len); // ip checksum
+	iph->check = CheckSum((unsigned short *)buffer, received_len); // ip checksum
 
 	// analyzeIPDatagram(buffer, received_len);
 	// analyzeTCPSegment(buffer, received_len);

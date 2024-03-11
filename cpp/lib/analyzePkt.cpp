@@ -4,7 +4,7 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 
-void analyzeIPDatagram(char *buffer, int size)
+void AnalyzeIPDatagram(char *buffer, int size)
 {
 	struct iphdr *ip = (struct iphdr *)(buffer); // ip header를 바로 가리키게 됨
 
@@ -29,7 +29,7 @@ void analyzeIPDatagram(char *buffer, int size)
 	printf("   |-Destination IP address: %s\n", inet_ntoa(*(struct in_addr *)&ip->daddr));
 }
 
-void analyzeTCPSegment(char *buffer, int size)
+void AnalyzeTCPSegment(char *buffer, int size)
 {
 	struct tcphdr *tcp = (struct tcphdr *)(buffer + sizeof(struct iphdr)); // tcp header를 가리키게됨
 

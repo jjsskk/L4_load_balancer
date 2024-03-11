@@ -13,19 +13,13 @@
 
 // #define port_incoming_pkt_from_server 20001
 
-// std::set<int> portlist_for_server;								// assign one port to one server. never use reused port for some servers
-// std::list<std::list<struct ip_port_element *> *> ip_port_table; // for Network Address Translation(NAT)
-// std::vector<struct server_element *> server_table;				// store server ip and port
-// std::vector<bool> server_status_table;							// store server status(true = alive or false = dead)
-// unsigned short round_robin_index = 0;
-// unsigned short numberOfServer = 0;
 
 #include "loadbalancerLobin.h"
 #include "analyzePkt.h"
 #include "healthCheck.h"
 #include "send.h"
 
-void receive_from(int sock, char *buffer, size_t buffer_length, struct sockaddr_in *src, struct sockaddr_in *dst)
+void ReceiveFrom(int sock, char *buffer, size_t buffer_length, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
 	unsigned short dst_port = 0;
 	int received;
@@ -36,7 +30,7 @@ void receive_from(int sock, char *buffer, size_t buffer_length, struct sockaddr_
 		if (received <= 0)
 		{
 			dst_port = 0;
-			perror("receive_from()");
+			perror("ReceiveFrom()");
 			// exit(EXIT_FAILURE);
 			break;
 		}
@@ -47,15 +41,15 @@ void receive_from(int sock, char *buffer, size_t buffer_length, struct sockaddr_
 			// printf("Successfully received bytes: %d\n", received);
 			printf("destination port: %d\n", ntohs(dst_port));
 			printf("Successfully receive pkt from client\n");
-			sendtoserver(sock, buffer, received, src, dst);
+			SendToServer(sock, buffer, received, src, dst);
 		}
-		// contains() in loadbalancerLobin.hpp
-		if (contains(portlist_for_server, (int)ntohs(dst_port))) // check if packet is from server.
+		// Contains() in loadbalancerLobin.hpp
+		if (Contains(portlist_for_server, (int)ntohs(dst_port))) // check if packet is from server.
 		{
 			// printf("Successfully  received bytes: %d\n", received);
 			printf("destination port: %d\n", ntohs(dst_port));
 			printf("Successfully receive pkt from server\n");
-			sendtoclient(sock, buffer, received, src, dst);
+			sendToClient(sock, buffer, received, src, dst);
 			// printf("send to client\n");
 		}
 	}
@@ -74,13 +68,13 @@ int main(int argc, char *argv[])
 	for (int i = 2; i < argc; i += 2)
 	{
 		struct server_element *element = (struct server_element *)malloc(sizeof(struct server_element));
-		const char *ip = getIPAddress(argv[i]); // DNS and Check if ip is valid in loadbalancerLobin.hpp
+		const char *ip = GetIPAddress(argv[i]); // DNS and Check if ip is valid in loadbalancerLobin.hpp
 		strcpy(element->ip, ip);
 		element->port = atoi(argv[i + 1]);
 		server_table.push_back(element);
 		delete[] ip;
 		server_status_table.push_back(true);
-		std::thread thread(healthCheckServer, element->ip, atoi(argv[i + 1]), (i / 2) - 1);
+		std::thread thread(HealthCheckServer, element->ip, atoi(argv[i + 1]), (i / 2) - 1);
 		thread.detach();
 	}
 
@@ -95,7 +89,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Source IP
-	const char *ip = getIPAddress(argv[1]); // DNS and Check if ip is valid in loadbalancerLobin.hpp
+	const char *ip = GetIPAddress(argv[1]); // DNS and Check if ip is valid in loadbalancerLobin.hpp
 	printf("srcIP : %s\n", ip);
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
@@ -130,7 +124,7 @@ int main(int argc, char *argv[])
 	char recvbuf[DATAGRAM_LEN];
 	// char *recvbuf = (char*)calloc(DATAGRAM_LEN , sizeof(char));
 
-	receive_from(sock, recvbuf, sizeof(recvbuf), &saddr, &daddr);
+	ReceiveFrom(sock, recvbuf, sizeof(recvbuf), &saddr, &daddr);
 
 	close(sock);
 	return 0;

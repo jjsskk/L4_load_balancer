@@ -9,7 +9,7 @@
 #include "struct.h"
 
 template <typename T>
-bool contains(std::set<T> &listOfElements, const T &element)
+bool Contains(std::set<T> &listOfElements, const T &element)
 {
 	// Find the iterator if element in list
 	auto it = std::find(listOfElements.begin(), listOfElements.end(), element); // # include <algorithm>
@@ -18,7 +18,7 @@ bool contains(std::set<T> &listOfElements, const T &element)
 	return it != listOfElements.end();
 }
 
-int check_portlist()
+int CheckPortList()
 {
 	int port_incoming_pkt_from_server;
 	do
@@ -26,7 +26,7 @@ int check_portlist()
 		port_incoming_pkt_from_server = rand() % 65535;
 		// port_incoming_pkt_from_server = 10000;
 
-	} while (contains(portlist_for_server, port_incoming_pkt_from_server));
+	} while (Contains(portlist_for_server, port_incoming_pkt_from_server));
 
 	portlist_for_server.insert(port_incoming_pkt_from_server);
 	// printf("\nport list used :");
@@ -36,11 +36,11 @@ int check_portlist()
 	return port_incoming_pkt_from_server;
 }
 
-void roundRobin(struct sockaddr_in *src, struct sockaddr_in *dst, int *tempport, int tcph_port, char *iph_saddr)
+void RoundRobin(struct sockaddr_in *src, struct sockaddr_in *dst, int *tempport, int tcph_port, char *iph_saddr)
 {
 	char server_ip[20];
 	int server_port;
-	int port_incoming_pkt_from_server = check_portlist(); // make new source port for new client
+	int port_incoming_pkt_from_server = CheckPortList(); // make new source port for new client
 	struct ip_port_element *element_client = (struct ip_port_element *)malloc(sizeof(struct ip_port_element));
 	struct ip_port_element *element_server = (struct ip_port_element *)malloc(sizeof(struct ip_port_element));
 	strcpy(element_client->ip, iph_saddr); // based on host order
@@ -84,7 +84,7 @@ void roundRobin(struct sockaddr_in *src, struct sockaddr_in *dst, int *tempport,
 	dst->sin_port = htons(server_port);
 }
 
-const char *getIPAddress(const char *hostname) // DNS and Check if ip is valid
+const char *GetIPAddress(const char *hostname) // DNS and Check if ip is valid
 {
 	struct addrinfo hints, *res;
 	memset(&hints, 0, sizeof(hints));
@@ -108,7 +108,7 @@ const char *getIPAddress(const char *hostname) // DNS and Check if ip is valid
 	return ip;
 }
 
-unsigned short checksum(unsigned short *buffer, unsigned short size) // datagram or pseudogram is recognized as unsigned short buffer
+unsigned short CheckSum(unsigned short *buffer, unsigned short size) // datagram or pseudogram is recognized as unsigned short buffer
 {
 	unsigned long checksum = 0;
 	while (size > 1) // add all header fileds + data

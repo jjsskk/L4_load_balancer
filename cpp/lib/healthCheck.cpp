@@ -9,7 +9,7 @@
 #include <string.h>
 #include "globalVariable.h"
 
-int connectWithTimeout(int sock, struct sockaddr_in *serv_addr, int sec)
+int ConnectWithTimeout(int sock, struct sockaddr_in *serv_addr, int sec)
 {
     int err;
     socklen_t len;
@@ -71,7 +71,7 @@ int GetCurrentSec()
     return tv.tv_sec;
 }
 
-void healthCheckServer(char *ip, int port, int server_status_table_index)
+void HealthCheckServer(char *ip, int port, int server_status_table_index)
 {
 
     int retry_number = 3;
@@ -91,7 +91,7 @@ void healthCheckServer(char *ip, int port, int server_status_table_index)
         serv_addr.sin_port = htons(port);
 
         int t1 = GetCurrentSec();
-        if (connectWithTimeout(sock, &serv_addr, response_time) < 0)
+        if (ConnectWithTimeout(sock, &serv_addr, response_time) < 0)
         {
             if (server_status)
             {
