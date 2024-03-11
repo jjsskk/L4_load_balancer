@@ -3,6 +3,8 @@
 #include <set>
 #include <iostream>
 
+using namespace std;
+
 template <typename T>
 bool Contains(std::set<T> &listOfElements, const T &element);
 int CheckPortList();

@@ -49,7 +49,7 @@ void ReceiveFrom(int sock, char *buffer, size_t buffer_length, struct sockaddr_i
 			// printf("Successfully  received bytes: %d\n", received);
 			printf("destination port: %d\n", ntohs(dst_port));
 			printf("Successfully receive pkt from server\n");
-			sendToClient(sock, buffer, received, src, dst);
+			SendToClient(sock, buffer, received, src, dst);
 			// printf("send to client\n");
 		}
 	}

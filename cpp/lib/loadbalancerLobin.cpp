@@ -9,10 +9,10 @@
 #include "struct.h"
 
 template <typename T>
-bool Contains(std::set<T> &listOfElements, const T &element)
+bool Contains(set<T> &listOfElements, const T &element)
 {
 	// Find the iterator if element in list
-	auto it = std::find(listOfElements.begin(), listOfElements.end(), element); // # include <algorithm>
+	auto it = find(listOfElements.begin(), listOfElements.end(), element); // # include <algorithm>
 	// return if iterator points to end or not. It points to end then it means element
 	//  does not exists in list
 	return it != listOfElements.end();
@@ -41,8 +41,8 @@ void RoundRobin(struct sockaddr_in *src, struct sockaddr_in *dst, int *tempport,
 	char server_ip[20];
 	int server_port;
 	int port_incoming_pkt_from_server = CheckPortList(); // make new source port for new client
-	struct ip_port_element *element_client = (struct ip_port_element *)malloc(sizeof(struct ip_port_element));
-	struct ip_port_element *element_server = (struct ip_port_element *)malloc(sizeof(struct ip_port_element));
+	struct ip_port_element *element_client = new struct ip_port_element;
+	struct ip_port_element *element_server = new struct ip_port_element;
 	strcpy(element_client->ip, iph_saddr); // based on host order
 	element_client->port = tcph_port;	   // based on host order
 	element_client->fin_ack = 0;
@@ -68,7 +68,7 @@ void RoundRobin(struct sockaddr_in *src, struct sockaddr_in *dst, int *tempport,
 	element_server->port_incoming_pkt_from_server = port_incoming_pkt_from_server;
 	printf("ip port :%s %d\n", element_client->ip, element_client->port);
 
-	std::list<struct ip_port_element *> *element = new std::list<struct ip_port_element *>;
+	list<struct ip_port_element *> *element = new list<struct ip_port_element *>;
 	element->push_back(element_client);
 	element->push_back(element_server);
 	ip_port_table.push_back(element);
@@ -94,7 +94,7 @@ const char *GetIPAddress(const char *hostname) // DNS and Check if ip is valid
 	int status = getaddrinfo(hostname, nullptr, &hints, &res);
 	if (status != 0)
 	{
-		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
+		cerr << "getaddrinfo error: " << gai_strerror(status) << endl;
 		exit(EXIT_FAILURE);
 		return "";
 	}

@@ -11,16 +11,16 @@ void SendToServer(int sock, char *buffer, int received_len, struct sockaddr_in *
 	// set destination  = server ip
 
 	char tempip[20] = "0.0.0.0";
-	int tempport = 0;
+	int tempport = 0; 
 	int port_incoming_pkt_from_server;
 	int client_port_from_client;
 
-	std::list<std::list<struct ip_port_element *> *>::iterator ip_port_table_index;
+	list<list<struct ip_port_element *> *>::iterator ip_port_table_index;
 	strcpy(client_addr, inet_ntoa(*(struct in_addr *)&iph->saddr));
 	printf("client ip addr =  %s\n", client_addr);
-	if (tcph->syn == 1 && tcph->ack == 0)
+	if (tcph->syn == 1 && tcph->ack == 0) // tcp 3 handshake를 위해 처음 연결시도하는 pkt
 	{
-		RoundRobin(src, dst, &tempport, (int)ntohs(tcph->source), inet_ntoa(*(struct in_addr *)&iph->saddr)); // in loadbalancerLobin.hpp
+		RoundRobin(src, dst, &tempport, (int)ntohs(tcph->source), inet_ntoa(*(struct in_addr *)&iph->saddr)); // in loadbalancerLobin.cpp
 	}
 	else
 	{
@@ -38,10 +38,9 @@ void SendToServer(int sock, char *buffer, int received_len, struct sockaddr_in *
 				port_incoming_pkt_from_server = element_server->port_incoming_pkt_from_server;
 				break;
 			}
-			// printf("  %d",*it);
 		}
 
-		if (0 == tempport)
+		if (0 == tempport) // tempport 0 -> NAT를 위한 ip_port_table에 없는 pkt -> 출처를 알 수없는 PKT(악성 패킷일수도)
 			return;
 
 		if (inet_pton(AF_INET, tempip, &(dst->sin_addr)) != 1) // set server ip addr
@@ -118,10 +117,10 @@ void SendToServer(int sock, char *buffer, int received_len, struct sockaddr_in *
 				{
 					printf("\nclient <%s,%d> terminated \n", element_client->ip, element_client->port);
 					portlist_for_server.erase(element_server->port_incoming_pkt_from_server);
-					// std::list<std::list<struct ip_port_element*>*>::iterator ip_port_table_index;
-					free(element_client);
-					free(element_server);
-					delete ((*ip_port_table_index));
+					// list<list<struct ip_port_element*>*>::iterator ip_port_table_index;
+					delete (element_client);
+					delete (element_server);
+					delete (*ip_port_table_index);
 					ip_port_table.erase(ip_port_table_index);
 					printf(" Current NAT table length : %d\n", (int)ip_port_table.size());
 				}

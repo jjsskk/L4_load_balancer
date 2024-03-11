@@ -17,6 +17,8 @@
 #define DATAGRAM_LEN 4096
 #define client_port_incoming_pkt 20000
 
+using namespace std;
+
 void SendToServer(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst);
-void sendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst);
+void SendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst);
 #endif

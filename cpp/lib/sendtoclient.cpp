@@ -1,6 +1,6 @@
 #include <send.h>
 
-void sendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
+void SendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
 	struct iphdr *iph = (struct iphdr *)buffer;
 	struct tcphdr *tcph = (struct tcphdr *)(buffer + sizeof(struct iphdr));
@@ -9,7 +9,7 @@ void sendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *
 	char tempip[20] = "0.0.0.0";
 	int tempport = 0;
 
-	std::list<std::list<struct ip_port_element *> *>::iterator ip_port_table_index;
+	list<list<struct ip_port_element *> *>::iterator ip_port_table_index;
 
 	for (auto it = ip_port_table.begin(); it != ip_port_table.end(); it++)
 	{
@@ -19,19 +19,17 @@ void sendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *
 		printf("\n%s %d\n", inet_ntoa(*(struct in_addr *)&iph->saddr), ntohs(tcph->source));
 		printf("\nclient : %s %d\n", element_client->ip, element_client->port);
 
-		// if( element_server -> port == ntohs(tcph->source) && !strcmp(element_server->ip , inet_ntoa(*(struct in_addr *)&iph->saddr) ) )
 		if (element_server->port_incoming_pkt_from_server == ntohs(tcph->dest))
 		{
 			ip_port_table_index = it;
 			strcpy(tempip, element_client->ip);
 			tempport = element_client->port;
-			// port_incoming_pkt_from_server = (*element_server)->port_incoming_pkt_from_server;
+
 			break;
 		}
-		// printf("  %d",*it);
 	}
 
-	if (0 == tempport)
+	if (0 == tempport) // tempport 0 -> NAT를 위한 ip_port_table에 없는 pkt -> 출처를 알 수없는 PKT(악성 패킷일수도)
 		return;
 
 	if (inet_pton(AF_INET, tempip, &(dst->sin_addr)) != 1) // set server ip addr
@@ -69,7 +67,7 @@ void sendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *
 	iph->check = CheckSum((unsigned short *)buffer, received_len);															  // ip checksum
 
 	int sent;
-	if (tempport != 0)
+	if (tempport != 0) 
 	{
 		if ((sent = sendto(sock, buffer, received_len, 0, (struct sockaddr *)dst, sizeof(struct sockaddr))) == -1)
 		{
@@ -85,9 +83,9 @@ void sendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *
 			{
 				printf("\nclient <%s,%d> terminated \n", element_client->ip, element_client->port);
 				portlist_for_server.erase(element_server->port_incoming_pkt_from_server);
-				// std::list<std::list<struct ip_port_element*>*>::iterator ip_port_table_index;
-				free(element_client);
-				free(element_server);
+				// list<list<struct ip_port_element*>*>::iterator ip_port_table_index;
+				delete (element_client);
+				delete (element_server);
 				delete ((*ip_port_table_index));
 				ip_port_table.erase(ip_port_table_index);
 				printf("Current NAT table length : %d\n", (int)ip_port_table.size());
