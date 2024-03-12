@@ -26,7 +26,7 @@ void SendToServer(int sock, char *buffer, int received_len, struct sockaddr_in *
 	else
 	{
 
-		// NAT를 위해 ip_port_table에 해당 pkt의 ip header src ip가 있는지 검색
+		// NAT를 위해 ip_port_table에 해당 pkt의 tcp header source port와 ip header src ip가 있는지 검색
 		for (auto it = ip_port_table.begin(); it != ip_port_table.end(); it++)
 		{
 			auto element_client = (*it)->front();
