@@ -29,10 +29,7 @@ int CheckPortList()
 	} while (Contains(portlist_for_server, port_incoming_pkt_from_server));
 
 	portlist_for_server.insert(port_incoming_pkt_from_server);
-	// printf("\nport list used :");
-	// for (auto it = portlist_for_server.begin(); it != portlist_for_server.end(); it++)
-	// 	printf("  %d", *it);
-	// printf("\n");
+
 	return port_incoming_pkt_from_server;
 }
 
@@ -48,6 +45,7 @@ void RoundRobin(struct sockaddr_in *src, struct sockaddr_in *dst, int *tempport,
 	element_client->fin_ack = 0;
 
 	// round robin algorithm
+
 	while (1)
 	{
 		if (server_status_table[round_robin_index] == true)

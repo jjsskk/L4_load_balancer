@@ -1,23 +1,19 @@
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <string>
 #include <thread>
 #include <unistd.h>
-
-// Before run this code, execute the command below
-// $ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
-
-
-// #define port_incoming_pkt_from_server 20001
-
-
 #include "loadbalancerLobin.h"
 #include "analyzePkt.h"
 #include "healthCheck.h"
 #include "send.h"
+
+
+// Before run this code, execute the command below
+// $ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
+
+using namespace std;;
 
 void ReceiveFrom(int sock, char *buffer, size_t buffer_length, struct sockaddr_in *src, struct sockaddr_in *dst)
 {
@@ -38,19 +34,16 @@ void ReceiveFrom(int sock, char *buffer, size_t buffer_length, struct sockaddr_i
 		if (ntohs(dst_port) == client_port_incoming_pkt) // packet from client
 		{
 
-			// printf("Successfully received bytes: %d\n", received);
 			printf("destination port: %d\n", ntohs(dst_port));
 			printf("Successfully receive pkt from client\n");
 			SendToServer(sock, buffer, received, src, dst);
 		}
-		// Contains() in loadbalancerLobin.hpp
+		// Contains() in loadbalancerLobin.cpp
 		if (Contains(portlist_for_server, (int)ntohs(dst_port))) // check if packet is from server.
 		{
-			// printf("Successfully  received bytes: %d\n", received);
 			printf("destination port: %d\n", ntohs(dst_port));
 			printf("Successfully receive pkt from server\n");
 			SendToClient(sock, buffer, received, src, dst);
-			// printf("send to client\n");
 		}
 	}
 }
@@ -63,18 +56,19 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	// Servers IP
+	// assign healthcheck to thread
 	numberOfServer = (argc / 2) - 1;
 	for (int i = 2; i < argc; i += 2)
 	{
-		struct server_element *element = (struct server_element *)malloc(sizeof(struct server_element));
-		const char *ip = GetIPAddress(argv[i]); // DNS and Check if ip is valid in loadbalancerLobin.hpp
+		struct server_element *element = new struct server_element;
+		// GetIPAddress() in loadbalancerLobin.cpp
+		const char *ip = GetIPAddress(argv[i]); // DNS and Check if ip is valid 
 		strcpy(element->ip, ip);
 		element->port = atoi(argv[i + 1]);
 		server_table.push_back(element);
 		delete[] ip;
 		server_status_table.push_back(true);
-		std::thread thread(HealthCheckServer, element->ip, atoi(argv[i + 1]), (i / 2) - 1);
+		thread thread(HealthCheckServer, element->ip, atoi(argv[i + 1]), (i / 2) - 1);
 		thread.detach();
 	}
 
@@ -89,11 +83,12 @@ int main(int argc, char *argv[])
 	}
 
 	// Source IP
-	const char *ip = GetIPAddress(argv[1]); // DNS and Check if ip is valid in loadbalancerLobin.hpp
+	const char *ip = GetIPAddress(argv[1]); // DNS and Check if ip is valid 
 	printf("srcIP : %s\n", ip);
+
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(client_port_incoming_pkt); // random client port (원래는 os가 자동 할당하지만 복잡)
+	saddr.sin_port = htons(client_port_incoming_pkt); // client_port_incomgin_pkt -> 20000 in send.h
 	// saddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	if (inet_pton(AF_INET, ip, &saddr.sin_addr) != 1)
 	{

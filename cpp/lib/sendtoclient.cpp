@@ -11,6 +11,7 @@ void SendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *
 
 	list<list<struct ip_port_element *> *>::iterator ip_port_table_index;
 
+	// NAT를 위해 ip_port_table에 해당 pkt의 tcp header dest port가 있는지 검색
 	for (auto it = ip_port_table.begin(); it != ip_port_table.end(); it++)
 	{
 		auto element_client = (*it)->front();
@@ -29,7 +30,7 @@ void SendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *
 		}
 	}
 
-	if (0 == tempport) // tempport 0 -> NAT를 위한 ip_port_table에 없는 pkt -> 출처를 알 수없는 PKT(악성 패킷일수도)
+	if (0 == tempport) // tempport 0 -> NAT를 위해 사용되는 ip_port_table에 없는 pkt -> 출처를 알 수없는 PKT(악성 패킷일수도)
 		return;
 
 	if (inet_pton(AF_INET, tempip, &(dst->sin_addr)) != 1) // set server ip addr
@@ -62,7 +63,7 @@ void SendToClient(int sock, char *buffer, int received_len, struct sockaddr_in *
 	memcpy(pseudogram, (char *)&psh, sizeof(struct pseudo_header));
 	memcpy(pseudogram + sizeof(struct pseudo_header), tcph, received_len - sizeof(struct iphdr));
 
-	// in loadbalancerLobin.hpp
+	// in loadbalancerLobin.cpp
 	tcph->check = CheckSum((unsigned short *)pseudogram, received_len - sizeof(struct iphdr) + sizeof(struct pseudo_header)); // tcp checksum
 	iph->check = CheckSum((unsigned short *)buffer, received_len);															  // ip checksum
 

@@ -96,14 +96,14 @@ void HealthCheckServer(char *ip, int port, int server_status_table_index)
             if (server_status)
             {
                 printf("IP: <%s>, Port : <%d> Server is bad \n", ip, port);
-                //   std::cout<<server_status_table[server_status_table_index]<<std::endl;
+                //   cout<<server_status_table[server_status_table_index]<<endl;
             }
             else
             {
                 printf("IP: <%s>, Port : <%d> Server is dead \n", ip, port);
                 if (server_status_table[server_status_table_index] != false)
                     server_status_table[server_status_table_index] = false;
-                //   std::cout<<server_status_table[server_status_table_index]<<std::endl;
+                //   cout<<server_status_table[server_status_table_index]<<endl;
             }
 
             close(sock);
@@ -118,7 +118,7 @@ void HealthCheckServer(char *ip, int port, int server_status_table_index)
             server_status = true;
             if (server_status_table[server_status_table_index] != true)
                 server_status_table[server_status_table_index] = true;
-            // std::cout<<server_status_table[server_status_table_index]<<std::endl;
+            // cout<<server_status_table[server_status_table_index]<<endl;
         }
         int t2 = GetCurrentSec();
         if (retry_number == 0)
